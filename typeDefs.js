@@ -25,7 +25,7 @@ const typeDefs = gql`
         phone: String!
         salary: Int!
         company: Company!
-        project: Project
+        project: Project!
         profile: [Profile!]!
         createdAt: DateTime!
         updatedAt: DateTime!
@@ -69,8 +69,10 @@ const typeDefs = gql`
         deleteCompany(id: ID!): Company!
  
         createEmployee(name:String!,phone:String!,salary:Int!,companyId:ID!,projectId:ID): Employee!
-        updateEmployee(id:ID!,name:String!,phone:String!,salary:Int!,companyId:ID!,projectId:ID): Employee!
+        updateEmployee(id:ID!,name:String!,phone:String!,salary:Int!,companyId:ID!,projectId:ID!): Employee!
         deleteEmployee(id: ID!): Employee!
+
+        createProject(name:String!, type:String!, estimatedAmount:Int!, companyId:ID!, employeeID:ID! ):Project!
     }
  
 `

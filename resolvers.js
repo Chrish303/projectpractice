@@ -2,38 +2,7 @@ const { PrismaClient } = require('@prisma/client');
 const { parseInt } = require('lodash');
 const prisma = new PrismaClient()
 
-const resolvers = {
-    // Query: {
-    //     owners: async () => await prisma.owner.findMany(),
-    //     owner: async (_, { id }) => await prisma.owner.findUnique({ where: { id: parseInt(id) } }),
-    //     companies: async () => await prisma.company.findMany(),
-    //     company: async (_, { id }) => await prisma.company.findUnique({ where: { id: parseInt(id) } }),
-    //     employees: async () => await prisma.employee.findMany(),
-    //     employee: async (_, { id }) => await prisma.employee.findUnique({ where: { id: parseInt(id) } })
-    // },
-    // Mutation: {
-    //     createOwner: async (_, { name }) => await prisma.owner.create({ data: { name } }),
-    //     updateOwner: async (_, { id, name }) => await prisma.owner.update({ where: { id: parseInt(id) }, data: { name } }),
-    //     deleteOwner: async (_, { id }) => await prisma.owner.delete({ where: { id: parseInt(id) } }),
-
-    //     createCompany: async (_, { name, ownerId }) => await prisma.company.create({ data: { name, owner_id: parseInt(ownerId) } }),
-    //     updateCompany: async (_, { id, name, ownerId }) => await prisma.company.update({ where: { id: parseInt(id) }, data: { name, owner_id: parseInt(ownerId) } }),
-    //     deleteCompany: async (_, { id }) => await prisma.company.delete({ where: { id: parseInt(id) } }),
-
-    //     createEmployee: async (_, { name, phone, salary, companyId, projectId }) => await prisma.employee.create({ data: { name, phone, salary, companyId: parseInt(companyId), projectId: parseInt(projectId) } }),
-    //     updateEmployee: async (_, { id, name, phone, salary, companyId, projectId }) => await prisma.employee.update({ where: { id: parseInt(id) }, data: { name, phone, salary, companyId: parseInt(companyId), projectId: parseInt(projectId) } }),
-    //     deleteEmployee: async (_, { id }) => await prisma.employee.delete({ where: { id: parseInt(id) } }),
-
-    //     createProject: async (_, { name, type, estimatedAmount, companyId, employeeId }) => await prisma.project.create({ data: { name, type, estimatedAmount: parseInt(estimatedAmount), companyId: parseInt(companyId), employeeId: parseInt(employeeId) } }),
-    // },
-    // Owner: {
-    //     companies: async (parent) => await prisma.company.findMany({ where: { owner_id: parent.id } })
-    // },
-    // Company: {
-    //     owner: async (parent) => await prisma.owner.findUnique({ where: { id: parent.id } }),
-    //     employees: async (parent) => await prisma.employee.findMany({ where: { companyId: parent.id } })
-    // },
-
+const resolvers = { 
     Query:{
         // FETCH the owner details;
         owners:async()=>{
@@ -75,6 +44,28 @@ const resolvers = {
             }catch(error){
                 console.error('Error to find company',error);
                 throw new Error('Error to find company')
+            }
+        },
+        // FETCH the Employeee
+        employees:async()=>{
+            try{
+                return await prisma.employee.findMany();
+            }catch(error){
+                console.error('Error to fetch employeee',error);
+                throw new Error('Failed to fetch employee')
+        }
+
+        },
+        employee:async(_,{ id })=>{
+            try{
+                return await prisma.employee.findUnique({
+                    where:{
+                        id:parseInt(id)
+                    }
+                })
+            }catch(error){
+                console.error('Error to find employye',error);
+                throw new Error('Failed to find employee')
             }
         }
     },
@@ -180,7 +171,56 @@ const resolvers = {
                 console.error('Error creating employee:', error);
                 throw new Error('Failed to create employee');
             }
-        }
+        },
+        updateEmployee: async (_, { id, name, phone, salary, companyId, projectId }) => {
+            try {
+                const updatedEmployee = await prisma.employee.update({
+                    where: {
+                        id: parseInt(id)
+                    },
+                    data: {
+                        name: name,
+                        phone: phone,
+                        salary: salary,
+                        companyId: parseInt(companyId),
+                        projectId: parseInt(projectId)
+                    }
+                });
+                return updatedEmployee;
+            } catch (error) {
+                console.error('Error updating employee:', error);
+                throw new Error('Failed to update employee');
+            }
+        },     
+        deleteEmployee:async(_,{ id })=>{
+            try{
+                const deleteEmployee = await prisma.employee.delete({
+                    where:{
+                        id:parseInt(id)
+                    }
+                });return deleteEmployee;
+            }catch(error){
+                console.error('Error to delete employee',error)
+                throw new Error('Faild to delete')
+            }
+        },
+        createProject: async (_, { name, type, estimatedAmount, companyId, employeeId }) => {
+            try {
+                const createProject = await prisma.project.create({
+                    data: {
+                        name: name,
+                        type: type,
+                        estimatedAmount: estimatedAmount,
+                        companyId: parseInt(companyId),
+                        employeeId: parseInt(employeeId)
+                    }
+                });
+                return createProject;
+            } catch (error) {
+                console.error('Error creating project:', error);
+                throw new Error('Failed to create project');
+            }
+        },
         
         
     }

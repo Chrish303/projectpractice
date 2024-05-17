@@ -1,15 +1,16 @@
-const {gql} = require('apollo-server')
- 
+const { gql } = require('apollo-server');
+
 const typeDefs = gql`
     scalar DateTime
- 
+
     type Owner {
-      id: ID!
-      name: String!
-      companies: [Company]
-      createdAt: DateTime!
-      updatedAt: DateTime!
-}
+        id: ID!
+        name: String!
+        companies: [Company!]!  # Corrected: Added type definition
+        createdAt: DateTime!
+        updatedAt: DateTime!
+    }
+
     type Company {
         id: ID!
         name: String!
@@ -19,6 +20,7 @@ const typeDefs = gql`
         createdAt: DateTime!
         updatedAt: DateTime!
     }
+
     type Employee {
         id: ID!
         name: String!
@@ -29,17 +31,19 @@ const typeDefs = gql`
         profile: [Profile!]!
         createdAt: DateTime!
         updatedAt: DateTime!
-  }
+    }
+
     type Project {
         id: ID!
         name: String!
         type: String!
-        estimatedAmount: Int!
+        estematedAmount: Int!
         company: Company!
         employees: [Employee!]!
         createdAt: DateTime!
         updatedAt: DateTime!
     }
+
     type Profile {
         id: ID!
         image: String!
@@ -50,30 +54,42 @@ const typeDefs = gql`
         employee: Employee!
         createdAt: DateTime!
         updatedAt: DateTime!
-  }
+    }
+
     type Query {
         owners: [Owner!]!
         owner(id: ID!): Owner
         companies: [Company!]!
         company(id: ID!): Company
         employees: [Employee!]!
-        employee(id:ID!): Employee
+        employee(id: ID!): Employee
+        projects: [Project!]!
+        project(id:ID!):Project
+        profiles:[Profile!]!
+        profile(id:ID!):Profile!
     }
-    type Mutation{
-        createOwner(name:String!):Owner!
+
+    type Mutation {
+        createOwner(name: String!): Owner!
         updateOwner(id: ID!, name: String!): Owner!
         deleteOwner(id: ID!): Owner!
- 
+
         createCompany(name: String!, ownerId: ID!): Company!
         updateCompany(id: ID!, name: String!, ownerId: ID!): Company!
         deleteCompany(id: ID!): Company!
- 
-        createEmployee(name:String!,phone:String!,salary:Int!,companyId:ID!,projectId:ID): Employee!
-        updateEmployee(id:ID!,name:String!,phone:String!,salary:Int!,companyId:ID!,projectId:ID!): Employee!
+
+        createEmployee(name: String!, phone: String!, salary: Int!, companyId: ID!, projectId: ID): Employee!
+        updateEmployee(id: ID!, name: String!, phone: String!, salary: Int!, companyId: ID!, projectId: ID!): Employee!
         deleteEmployee(id: ID!): Employee!
 
-        createProject(name:String!, type:String!, estimatedAmount:Int!, companyId:ID!, employeeID:ID! ):Project!
+        createProject(name: String!, type: String!, estematedAmount: Int!, companyId: ID!): Project!
+        updateProject(id: ID!, name: String!, type: String!, estimatedAmount: Int!, companyId: ID!): Project!
+        deleteProject(id: ID!): Project!
+
+        createProfile(image: String!, email: String!, emergencyContact: String!, bloodGroup: String!, dateOfBirth: String!, employeeId: ID!): Profile!
+        updateProfile(id:ID!, image: String!, email: String!, emergencyContact: String!, bloodGroup: String!, dateOfBirth: String!, employeeId: ID!):Profile!
+        deleteProfile(id:ID!):Project!
     }
- 
-`
-module.exports=typeDefs;
+`;
+
+module.exports = typeDefs;

@@ -4,9 +4,9 @@ const resolvers = require('./resolvers');
 
 const app = new ApolloServer({ typeDefs,resolvers });
 
-const port = 4000
 
 
-app.listen().then((port)=>{
-    console.log(`server runing at ${port}`)
+
+app.listen().then(()=>{
+    console.log('🚀...server runing at 4000---->🔥')
 })

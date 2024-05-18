@@ -1,4 +1,5 @@
 const { PrismaClient } = require('@prisma/client');
+const { parse } = require('graphql');
 const { parseInt } = require('lodash');
 const prisma = new PrismaClient()
 
@@ -49,63 +50,62 @@ const resolvers = {
         // FETCH the Employeee
         employees:async()=>{
             try{
-                return await prisma.employee.findMany();
+                return await prisma.employee.findMany()
             }catch(error){
-                console.error('Error to fetch employeee',error);
+                console.error('Error to fetch employee',error)
                 throw new Error('Failed to fetch employee')
-        }
-
+            }
         },
-        employee:async(_,{ id })=>{
+        employee:async(_,{id})=>{
             try{
                 return await prisma.employee.findUnique({
+                    where:{id:parseInt(id)}
+                })
+            }catch(error){
+                console.error('Error to find employee',error)
+                throw new Error('Failed to find employee')
+            }
+        },
+        // fetch the Profil
+        profiles:async()=>{
+            try{
+                return await prisma.profile.findMany()
+            }catch(error){
+                console.error('Error to fetch profile',error)
+                throw new Error('Failed to  fetch profile')
+            }
+        },
+        profile:async(_,{ id })=>{
+            try{
+                return await prisma.profile.findUnique({
                     where:{
                         id:parseInt(id)
                     }
                 })
             }catch(error){
-                console.error('Error to find employye',error);
-                throw new Error('Failed to find employee')
+                console.error('Error to fetch profile',error)
+                throw new Error('Failed to  fetch profile')
             }
         },
-        // FETCH the projects
-        projects:async()=>{
+        // FETCH the Customer
+        customers:async()=>{
             try{
-                return await prisma.project.findMany();
+                return await prisma.customer.findMany();
             }catch(error){
-                console.error('Error to FEtch project',error);
-                throw new Error('Failed to fetch project')
+                console.error('Error to fetch customers',error)
+                throw new Error('Failrd to fetch customers')
+            }
+        },
+        customer:async(_,{ id })=>{
+            try{
+                return await prisma.customer.findUnique({
+                    where:{ id : parseInt(id)}
+                });
+            }catch(error){
+                console.error('Error to fetch customers',error)
+                throw new Error('Failrd to fetch customers')
+            }
         }
-        },
-        project:async(_,{id})=>{
-            try{
-                return await prisma.project.findUnique({
-                    where:{id : parseInt(id)}
-                })
-            }catch(error){
-                console.error('Error to find project',error);
-                throw new Error('Failed to find project')
-            }
-        },
-        // FETCH the profile
-        profiles:async()=>{
-            try{
-                return await prisma.profile.findMany();
-            }catch(error){
-                console.error('Error to fetch profiles',error);
-                throw new Error('Failed to fetch profiles')
-            }
-        },
-        profile:async(_, { id })=>{
-            try{
-                return await prisma.profile.findUnique({
-                    where:{id : parseInt(id)}
-                })
-            }catch(error){
-                console.error('Error to find project',error);
-                throw new Error('Failed to find project')
-            }
-        },
     },
 
     Mutation : {
@@ -193,100 +193,54 @@ const resolvers = {
                 throw new Error('Failed to delete company')
             }
         },
-        createEmployee: async (_, { name, phone, salary, companyId, projectId }) => {
-            try {
-                const createEmployee = await prisma.employeemployee.create({
-                    data: {
-                        name: name,
-                        phone: phone,
-                        salary: salary,
-                        companyId: parseInt(companyId), // Correct field name
-                        projectId: parseInt(projectId) // Correct field name
+        createEmployee:async(_,{ name,phone,salary,companyId,projectId})=>{
+            try{
+                const createEmployee = await prisma.employee.create({
+                    data:{
+                        name:name,
+                        phone:phone,
+                        salary:salary,
+                        companyId:parseInt(companyId),
+                        projectId:parseInt(projectId)
                     }
                 });
                 return createEmployee;
-            } catch (error) {
-                console.error('Error creating employee:', error);
-                throw new Error('Failed to create employee');
+            }catch(error){
+                console.error('Error to crate employee',error)
+                throw new Error('Failed to create employee')
             }
         },
-        updateEmployee: async (_, { id, name, phone, salary, companyId, projectId }) => {
-            try {
-                const updatedEmployee = await prisma.employee.update({
-                    where: {
-                        id: parseInt(id)
-                    },
-                    data: {
-                        name: name,
-                        phone: phone,
-                        salary: salary,
-                        companyId: parseInt(companyId),
-                        projectId: parseInt(projectId)
+        updateEmployee:async(_,{id,name,phone,salary,companyId})=>{
+            try{
+                const updateEmployee = await prisma.employee.update({
+                    where:{id:parseInt(id)},
+                    data:{
+                        name:name,
+                        phone:phone,
+                        salary:salary,
+                        companyId:parseInt(companyId),
                     }
                 });
-                return updatedEmployee;
-            } catch (error) {
-                console.error('Error updating employee:', error);
-                throw new Error('Failed to update employee');
+                return updateEmployee
+            }catch(error){
+                console.error('Error to update employeee',error)
+                throw new Error('Failed to update employee')
             }
-        },     
+        },
         deleteEmployee:async(_,{ id })=>{
             try{
                 const deleteEmployee = await prisma.employee.delete({
                     where:{
                         id:parseInt(id)
                     }
-                });return deleteEmployee;
+                });
+                return deleteEmployee
             }catch(error){
                 console.error('Error to delete employee',error)
-                throw new Error('Faild to delete')
-            }   
-        },
-        createProject: async (_, { name, type, estematedAmount, companyId }) => {
-            try {
-                const createProject = await prisma.project.create({
-                    data: {
-                        name: name,
-                        type: type,
-                        estematedAmount: estematedAmount,
-                        companyId:parseInt(companyId),
-                    }
-                });
-                return createProject;
-            } catch (error) {
-                console.error('Error creating project:', error);
-                throw new Error('Failed to create project');
+                throw new Error('Failed to delete employee')
             }
         },
-        updateProject:async(_,{id,name,type,estematedAmount,companyId})=>{
-            try{
-                const updateProject = await prisma.project.update({
-                    where:{
-                        id:parseInt(id)
-                    },
-                    data:{
-                        name: name,
-                        type: type,
-                        estematedAmount: estematedAmount,
-                        companyId:parseInt(companyId),
-                    }
-                });return updateProject;
-            }catch(error){
-                console.error('Error to update project',error)
-                throw new Error('Failed to update project')
-            }
-        },
-        deleteProject:async(_,{id})=>{
-            try{
-                const deleteProject = await prisma.project.delete({
-                    where:{id:parseInt(id)}
-                });return deleteProject
-            }catch(error){
-                console.error('Error to delete project',error);
-                throw new Error('Failed to delete project')
-            }
-        },
-        createProfile:async(_,{ image, email, emergencyContact, bloodGroup, dateOfBirth,employeeId })=>{
+        createProfile:async(_,{ image, email, emergencyContact, bloodGroup, dateOfBirth, employeeId })=>{
             try{
                 const createProfile = await prisma.profile.create({
                     data:{
@@ -303,151 +257,125 @@ const resolvers = {
                 throw new Error('Failed to create profile')
             }
         },
-        updateProfile:async(_,{id, image, email, bloodGroup, dateOfBirth, emergencyContact, employeeId})=>{
+        updateProfile:async(_,{ id,image, email, emergencyContact, bloodGroup, dateOfBirth, employeeId })=>{
             try{
                 const updateProfile = await prisma.profile.update({
-                    where:{id:parseInt(id)},
+                    where:{
+                        id:parseInt(id)
+                    },
                     data:{
                         image:image,
                         email:email,
-                        emergencyContact:emergencyContact,
+                        emergencyContact,
                         bloodGroup:bloodGroup,
                         dateOfBirth:dateOfBirth,
-                        employeeId:parseInt(employeeId)
+                        employeeId:parseInt(employeeId) 
                     }
-                });return updateProfile;
+                });return updateProfile
             }catch(error){
-                console.error('Error to update profile',error);
+                console.error('Error to update profile',error)
                 throw new Error('Failed to update profile')
             }
         },
         deleteProfile:async(_,{ id })=>{
             try{
                 const deleteProfile = await prisma.profile.delete({
-                    where:{id:parseInt(id)}
+                    where:{
+                        id:parseInt(id)
+                    }
                 });return deleteProfile
             }catch(error){
-                console.error('Error to delete profile',error);
-                throw new Error('Failed to delete profile')
+                console.error('Error to delete profile',error)
+                throw new Error('Failed todelete profile')
             }
         },
-},
-        Owner:{
-            companies:async(parent)=>{
-                try{
-                    return await prisma.company.findMany({
-                        where:{
-                            owner_id:parent.id
-                        }
-                    })
-                }catch(error){
-                    console.error
-                    throw new Error('Failed to owener companies')
-                }
-            },   
-        },
-        Company: {
-            owner: async (parent) => {
-              try {
-                return await prisma.owner.findUnique({
-                  where: {
-                    id: parent.owner_id,
-                  },
-                });
-              } catch (error) {
-                console.error('Failed to retrieve owner details:', error);
-                throw new Error('Failed to retrieve owner details');
-              }
-            },
-            employees: async ( parent ) => {
-              try {
-                return await prisma.employee.findMany({
-                  where: {
-                    companyId: parent.id,
-                  },
-                });
-              } catch (error) {
-                console.error('Failed to retrieve employee details:', error);
-                throw new Error('Failed to retrieve employee details');
-              }
-            },
-            projects: async (parent) => {
-              try {
-                return await prisma.project.findMany({
-                  where: { companyId: parent.id },
-                });
-              } catch (error) {
-                console.error('Failed to retrieve project details:', error);
-                throw new Error('Failed to retrieve project details');
-              }
-            },
-        },
-        Employee: {
-            company: async (parent) => {
-              try {
-                return await prisma.company.findUnique({
-                  where: {
-                    id: parent.companyId,
-                  },
-                });
-              } catch (error) {
-                console.error('Failed to retrieve company details:', error);
-                throw new Error('Failed to retrieve company details');
-              }
-            },
-            project: async (parent) => {
-              try {
-                return await prisma.project.findUnique({
-                  where: {
-                    id: parent.projectId,
-                  },
-                });
-              } catch (error) {
-                console.error('Failed to retrieve project details:', error);
-                throw new Error('Failed to retrieve project details');
-              }
-            },
-            profile: async (parent) => {
-              try {
-                return await prisma.profile.findUnique({
-                  where: {
-                    employeeId: parent.id,
-                  },
-                });
-              } catch (error) {
-                console.error('Failed to retrieve profile details:', error);
-                throw new Error('Failed to retrieve profile details');
-              }
-            },
-          },
-          Project:{
-            company:async(parent)=>{
-                try{
-                    return await prisma.company.findUnique({
-                        where:{
-                            id:parent.companyId
-                        }
-                    })
-                }catch(error){
-                    console.error('Failed to retrive the comany details')
-                    throw new Error('Failed to retrive the comany details')
-                }
-            },
-           employees:async(parent)=>{
+        createCustomer:async(_,{ CustomerName })=>{
             try{
-                return await prisma.employee.findMany({
-                    where:{
-                           projectId:parent.id 
+                const createCustomer = await prisma.customer.create({
+                    data:{
+                        CustomerName:CustomerName
                     }
-                })
+                });return createCustomer
             }catch(error){
-                console.error('Failed to retrive the employee details')
-                throw new Error('Failed to retrive the employee details')
+                console.error('Error to create customer',error);
+                throw new Error('Failed to create customer')
             }
-           }
-          },
-          
-    }
+        },
+        updateCustomer:async(_, { id, CustomerName })=>{
+            try{
+                const updateCustomer = await prisma.customer.update({
+                    where:{ id:parseInt(id)},
+                    data:{
+                        CustomerName:CustomerName
+                    }
+                });return updateCustomer
+            }catch(error){
+                console.error('Error to update customer',error)
+                throw new Error('Failed to update customer')
+            }
+        },
+        deleteCustomer:async(_,{ id })=>{
+            try{
+                const deleteCustomer = await prisma.customer.delete({
+                    where:{ id : parseInt(id)}
+                });return deleteCustomer;
+            }catch(error){
+                console.error('Error to delete customer',error)
+                throw new Error('Failed to delete customer')
+            }
+        },
+        createCustomerProfile:async(_,{ companyName,email, phone, address, pincode, fax, website, customerId})=>{
+            try{
+                const createCustomerProfile = await prisma.customerProfile.create({
+                    data:{
+                        companyName:companyName,
+                        email:email,
+                        phone:phone,
+                        address:address,
+                        pincode:pincode,
+                        fax:fax,
+                        website:website,
+                        customerId:parseInt(customerId)
+            
+                    }
+                });return createCustomerProfile
+            }catch(error){
+                console.error('Error to create customer profile',error)
+                throw new Error('Failed to create customer profile')
+            }
+        },
+        updateCustomerProfile:async(_,{ id, companyName,email, phone, address, pincode, fax, website, customerId })=>{
+            try{
+                const updateCustomerProfile = await prisma.customerProfile.update({
+                    where:{ id : parseInt(id)},
+                    data:{
+                        companyName:companyName,
+                        email:email,
+                        phone:phone,
+                        address:address,
+                        pincode:pincode,
+                        fax:fax,
+                        website:website,
+                        customerId:parseInt(customerId)
+                    }
+                });return updateCustomerProfile;
+            }catch(error){
+                console.error('Error to update customer profile',error)
+                throw new Error('Failed to update customer profile')
+            }
+        },
+        deleteCustomerProfile:async(_,{ id })=>{
+            try{
+                const deleteCustomerProfile = await prisma.customerProfile.delete({
+                    where:{ id : parseInt(id)}
+                }); return deleteCustomerProfile
+            }catch(error){
+                console.error('Error to delete customer profile',error)
+                throw new Error('Failed to delete customer profile')
+            }
+        }
+    },          
+}
 
 
 module.exports =  resolvers, prisma ;

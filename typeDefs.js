@@ -7,7 +7,7 @@ const typeDefs = gql`
         owners: [Owner!]!
         owner(id:ID!):Owner
         companies: [Company!]!
-        company:Company
+        company(id:ID!):Company
         employees:[Employee!]!
         employee(id:ID!):Employee
         profiles:[Profile!]!
@@ -54,7 +54,7 @@ const typeDefs = gql`
         projectName: String!
         customerName: Customer
         projectGroup: String!
-        projectType: ProjectType
+        projectType: projectType
         StartDate: DateTime
         DueDate: DateTime
         ProjectOwner: String!
@@ -103,10 +103,10 @@ const typeDefs = gql`
         }
 
         
-    enum ProjectType {
-        FIXED
-        TIMEANDMATERIAL
-        PROGRESSIVE
+    enum projectType {
+        fixed
+        timeAndMaterial
+        progressive
         }
 
 
@@ -119,7 +119,7 @@ const typeDefs = gql`
         updateCompany(id: ID!, name: String!, ownerId: ID!): Company!
         deleteCompany(id: ID!): Company!
 
-        createEmployee(name:String!, salary:Int!, phone:String!,companyId:ID!):Employee!
+        createEmployee(name:String!, salary:Int!, phone:String!,companyId:ID!,projectId:ID!):Employee!
         updateEmployee(id:ID!,name:String!, salary:Int!, Phone:String, companyId:ID!):Employee!
         deleteEmployee(id:ID!):Employee!
 
@@ -135,6 +135,9 @@ const typeDefs = gql`
         updateCustomerProfile(id:ID!, companyName:String!, email:String!, phone:String!, address:String!, pincode:String!, fax:String!, website:String!,customerId:ID!):CustomerProfile!
         deleteCustomerProfile(id:ID!):CustomerProfile!
 
+        createProject(projectName:String!, projectGroup:String!, StartDate:DateTime!, DueDate:DateTime!, ProjectOwner:String!, customerId:ID!, projectManagerId:ID!, projectAccountControllerId:ID!, companyId:ID!, projectType:projectType):Project!
+        updateProject(ProjectId:ID!, projectName:String!, projectGroup:String!, StartDate:DateTime!, DueDate:DateTime!, ProjectOwner:String!, customerId:ID!, projectManagerId:ID!, projectAccountControllerId:ID!, companyId:ID!, projectType:projectType):Project!
+        deleteProject(ProjectId:ID!):Profile!
     }
 `;
 

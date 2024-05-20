@@ -108,6 +108,138 @@ const resolvers = {
         }
     },
 
+    Owner: {
+        companies: async (parent) => {
+            console.log(parent)
+            try {
+                return await prisma.company.findMany({
+                    where: { owner_id: parent.id }
+                });
+            } catch (error) {
+                console.error('Error fetching company details:', error);
+                throw new Error('Failed to fetch company details');
+            }
+        }
+    },
+    Company:{
+        owner:async(parent)=>{
+            try{
+                return await prisma.owner.findUnique({
+                    where:{id:parent.id}
+                })
+            }catch(error){
+                console.error('Error to owner detatils',error)
+                throw new Error('Failed to owner detatils')
+            }
+        },
+    },
+
+    Company:{
+        employees:async(parent)=>{
+            try{
+                return await prisma.employee.findMany({
+                    where:{companyId:parent.id}
+                })
+            }catch(error){
+                console.error('Error to get employees detatils')
+                throw new Error('Failed to employees details')
+            }
+        },
+        projects:async(parent)=>{
+            try{
+                return await prisma.project.findMany({
+                    where:{ProjectId:parent.id}
+                })
+            }catch(error){
+                console.error('Error to projects details',error)
+                throw  new Error('Failed to projects details')
+            }
+        }
+    },
+
+    Employee:{
+        company:async(parent)=>{
+            console.log(parent)
+            try{
+                return await prisma.company.findUnique({
+                    where:{id:parent.companyId}
+                })
+            }catch(error){
+                console.error('Error to get company',error)
+                throw new Error('Failed to get company details')
+            }
+        },
+        project:async(parent)=>{
+            try{
+                return await prisma.project.findUnique({
+                    where:{id:parent.projectId}
+                })
+            }catch(error){
+                console.error('Error to get project details',error)
+                throw new Error('Failed to get project details')
+            }
+        },
+        projectManager:async(parent)=>{
+            try{
+                return await prisma.employee.findUnique({
+                    where:{id:parent.projectManagerId}
+                })
+            }catch(error){
+                conole.error('Error to project manager')
+                throw new Error('Failed to project manger details')
+            }
+        }
+    },
+
+    Profile:{
+        employee:async(parent)=>{
+            try{
+                return await prisma.employee.findUnique({
+                    where:{id:parent.id}
+                })
+            }catch(error){
+                console.error('Error to employee profile',error)
+                throw new Error('Failed to employee profile')
+            }
+        }
+    },
+
+    Customer:{
+        projects:async(parent)=>{
+            try{
+                return await prisma.project.findMany({
+                    where:{customerId:parent.id}
+                })
+            }catch(error){
+                console.error('Error to customer project',error)
+                throw new Error('Failed to customer project')
+            }
+        },
+        customerProfiles:async(parent)=>{
+            try{
+                return await prisma.customerProfile.findMany({
+                    where:{id:parent.id}
+                })
+            }catch(error){
+                console.error('Error to project customer profile',error)
+                throw new Error('Failed to project customer profile')
+            }
+        }
+    },
+
+    // CustomerProfile:{
+    //     customer:async(parent)=>{
+    //         try{
+    //             return await prisma.customer.findUnique({
+    //                 where:{customerId:parent.id}
+    //             })
+    //         }catch(error){
+    //             console.error('Error to customer profile details',error)
+    //             throw new Error('Failed to customer profile details')
+    //         }
+    //     }
+    // },
+
     Mutation : {
         // Owner CURD operation
         createOwner:async(_,{name})=>{
@@ -210,7 +342,7 @@ const resolvers = {
                 throw new Error('Failed to create employee')
             }
         },
-        updateEmployee:async(_,{id,name,phone,salary,companyId})=>{
+        updateEmployee:async(_,{id,name,phone,salary,companyId, projectId})=>{
             try{
                 const updateEmployee = await prisma.employee.update({
                     where:{id:parseInt(id)},
@@ -219,6 +351,7 @@ const resolvers = {
                         phone:phone,
                         salary:salary,
                         companyId:parseInt(companyId),
+                        projectId:parseInt(projectId)
                     }
                 });
                 return updateEmployee
@@ -373,8 +506,67 @@ const resolvers = {
                 console.error('Error to delete customer profile',error)
                 throw new Error('Failed to delete customer profile')
             }
+        },
+        createProject:async(_,{ projectName, projectGroup,StartDate,DueDate,ProjectOwner,customerId,projectManagerId,projectAccountControllerId,companyId,projectType })=>{
+            try{
+                const createProject = await prisma.project.create({
+                    data:{
+                        projectName:projectName,
+                        projectGroup:projectGroup,
+                        StartDate:StartDate,
+                        DueDate:DueDate,
+                        ProjectOwner:ProjectOwner,
+                        customerId:parseInt(customerId),
+                        projectManagerId:parseInt(projectManagerId),
+                        projectAccountControllerId:parseInt(projectAccountControllerId),
+                        companyId:parseInt(companyId),
+                        projectType:projectType
+,                    },
+                    
+                });return createProject;
+            }catch(error){
+                console.error('Error to create project',error)
+                throw new Error('Failed to create project')
+            }
+        },
+        updateProject: async (_, { ProjectId, projectName, projectGroup, StartDate, DueDate, ProjectOwner, customerId, projectManagerId, projectAccountControllerId, companyId, projectType }) => {
+            try {
+                const updateProject = await prisma.project.update({
+                    where: {
+                        ProjectId: parseInt(ProjectId), // Correct casing to 'ProjectId'
+                    },
+                    data: {
+                        projectName: projectName,
+                        projectGroup: projectGroup,
+                        StartDate: StartDate,
+                        DueDate: DueDate,
+                        ProjectOwner: ProjectOwner,
+                        customerId: parseInt(customerId),
+                        projectManagerId: parseInt(projectManagerId),
+                        projectAccountControllerId: parseInt(projectAccountControllerId),
+                        companyId: parseInt(companyId),
+                        projectType: projectType
+                    }
+                });
+                return updateProject;
+            } catch (error) {
+                console.error('Error updating project:', error);
+                throw new Error('Failed to update project');
+            }
+        },
+        deleteProject:async(_, { ProjectId})=>{
+            try{
+                const deleteProject = await prisma.project.delete({
+                    where:{ ProjectId: parseInt(ProjectId)}
+                });
+                return deleteProject;
+            }catch(error){
+                console.error('Error to delete project',error)
+                throw new Error('Failed to delete project')
+            }
         }
-    },          
+        
+    },     
 }
 
 

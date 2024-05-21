@@ -14,6 +14,11 @@ const typeDefs = gql`
         profile(id:ID!):Profile
         customers:[Customer!]!
         customer(id:ID!):Customer
+        CustomerProfiles:[CustomerProfile!]!
+        CustomerProfile(id:ID!):CustomerProfile
+        Projects:[Project!]!
+        Project(id:ID!):Project
+        projectManager(id:ID!): Employee
         }
 
      type Owner {

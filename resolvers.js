@@ -105,9 +105,82 @@ const resolvers = {
                 console.error('Error to fetch customers',error)
                 throw new Error('Failrd to fetch customers')
             }
-        }
-    },
+        },
+        // frtch customerprofile datas
+        CustomerProfiles:async()=>{
+            try{
+                return await prisma.customerProfile.findMany({
 
+                })
+            }catch(error){
+                console.error('Error to CustomerProfile dadats',error)
+                throw new Error('Failed to CustomerProfile datas')
+            }
+        },
+        CustomerProfile:async(_,{ id })=>{
+            try{
+                return await prisma.customerProfile.findUnique({
+                    where:{id:parseInt(id)}
+                })
+            }catch(error){
+                console.error('Error to find customerprofile',error)
+                throw new Error('Failed to find customerprofile ')
+            }
+        },
+        // FETCH project details
+        Projects:async()=>{
+            try{
+                return await prisma.project.findMany({
+
+                })
+            }catch(error){
+                console.error('Error to fetch project details',error)
+                throw new Error('Failed to fetch find project')
+            }
+        },
+
+        projectManager: async (_, { id }) => {
+            try {
+              return await prisma.employee.findUnique({
+                where: { id: parseInt(id) }
+              })
+            } catch (error) {
+              console.error('Error to fetch project manager', error)
+              throw new Error('Failed to fetch project manager details')
+            }
+          },
+          Project: async (_, { id }) => {
+            try {
+              return await prisma.project.findUnique({
+                where: {
+                  ProjectId: parseInt(id),
+                },
+              });
+            } catch (error) {
+              console.error('Error to get project details', error);
+              throw new Error('Failed to get project details');
+            }
+          },
+          Project: async (_, { id }) => {
+            try {
+              return await prisma.project.findUnique({
+                where: {
+                  ProjectId: parseInt(id),
+                },
+                include: {
+                  projectManager: true,
+                  projectAccountController: true,
+                },
+              });
+            } catch (error) {
+              console.error('Error to get project details', error);
+              throw new Error('Failed to get project details');
+            }
+          }
+        },
+       
+   
+// One to one and one to many relationship table
     Owner: {
         companies: async (parent) => {
             console.log(parent)
@@ -203,6 +276,7 @@ const resolvers = {
             }
         }
     },
+    
 
     Customer:{
         projects:async(parent)=>{
@@ -226,19 +300,7 @@ const resolvers = {
             }
         }
     },
-
-    // CustomerProfile:{
-    //     customer:async(parent)=>{
-    //         try{
-    //             return await prisma.customer.findUnique({
-    //                 where:{customerId:parent.id}
-    //             })
-    //         }catch(error){
-    //             console.error('Error to customer profile details',error)
-    //             throw new Error('Failed to customer profile details')
-    //         }
-    //     }
-    // },
+    
 
     Mutation : {
         // Owner CURD operation
